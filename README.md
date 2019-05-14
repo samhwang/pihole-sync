@@ -36,9 +36,15 @@ In the words of reddit user [/u/LandlordTiberius](https://www.reddit.com/r/pihol
 ## What you need to do
 
 Ideally, the script is for people having a good router as their main DHCP,
-and not letting their Pi-hole serving as the DHCP server. Also, from this
-point on, the main pihole will be referred to as "the primary pihole" while
-the fallback/backup pihole will be referred to as "the other pihole".
+and not letting their Pi-hole serving as the DHCP server.
+
+### Assumptions
+
+- All of the process will be running either on the default pi user, or the root user.
+- ssh on the piholes will be enabled, and by "logging in" in this context, it will be by ssh. If something can be done by the pi-hole web interface, it will be stated explicitly.
+- The ssh keys will be created by using default values, and will be named `id_rsa` for the private key, and `id_rsa.pub` for the public key.
+- Also, from this point on, the primary pihole will be referred to as "the main pihole" while the fallback/backup pihole will be referred to as "the other pihole".
+- Installed command line programs: `git`, and a text editor `(nano, vim, emacs...)`
 
 ### Part 1: For people running Pi-Hole as their DHCP server
 
