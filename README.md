@@ -70,13 +70,52 @@ echo "DHCP-option=option:dns-server,<[YOUR.MAIN.PIHOLE.IP],[YOUR.OTHER.PIHOLE.IP
 #### Part 2a: Set up root access
 
 1. Login to the primary pihole.
-2. Edit the sshd_config file using your favorite text editor (Mine is vim). `sudo vim /etc/sshd_config`
+2. Edit the sshd_config file using your favorite text editor (Mine is vim).
 3. Find the `#PermitRootLogin prohibit-password` and change it to `PermitRootLogin without-password`. This is done so that it would allow root access for ssh with public key authentication. Read more about [ssh login permissions here](https://askubuntu.com/questions/449364/what-does-without-password-mean-in-sshd-config-file)
 4. Save and quit.
-5. Restart the ssh services. `sudo /etc/init.d/ssh restart`
+5. Restart the ssh services.
 6. Login to the other pihole and repeat step 2-5.
 
-#### Creating ssh keys
+```bash
+# From your machine
+ssh pi@[YOUR.MAIN.PIHOLE.IP]
+
+# You should be in the primary pihole now
+sudo vim /etc/sshd_config
+# Find the PermitRootLogin line, edit it, save and quit
+sudo /etc/init.d/ssh restart
+exit
+
+# Do the same with the other pihole
+```
+
+#### Part 2b: Creating ssh public authentication keys
+
+1. Login to the primary pihole.
+2. Create your SSH key by running `ssh-keygen`. Hit enter 3 times to accept the default values. Assuming your keys will now be set up as `id_rsa` and `id_rsa.pub`
+3. Copy your public key to the other pihole by running `scp id_rsa.pub pi@[YOUR.OTHER.PIHOLE.IP]:/home/pi/.ssh/primary.pub`
+4. Login to the other pihole. This can either be done from the primary pihole, or from your machine. I'd prefer doing it in my own machine so I don't have to go through another layer of connection, making the process faster.
+5. Go into the `.ssh` directory by `cd ~/.ssh`
+6. Create an `authorized_keys` file
+7. Copy the content of the primary pi-hole public key into the `authorized_keys` file.
+
+```bash
+# From your machine
+ssh pi@[YOUR.MAIN.PIHOLE.IP]
+
+# You should be in the primary pi hole now.
+ssh-keygen
+# Hit Enter 3 times
+scp ~/.ssh/id_rsa.pub pi@[YOUR.OTHER.PIHOLE.IP]:/home/pi/.ssh/primary.pub
+exit
+
+#Back to your machine
+ssh pi@[YOUR.OTHER.PIHOLE.IP]
+cd .ssh
+touch authorized_keys
+cat primary.pub > authorized_keys # Copy the content of primary.pub into authorized_keys
+exit
+```
 
 ## Credits
 
