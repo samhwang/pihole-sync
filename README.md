@@ -36,7 +36,9 @@ In the words of reddit user [/u/LandlordTiberius](https://www.reddit.com/r/pihol
 ## What you need to do
 
 Ideally, the script is for people having a good router as their main DHCP,
-and not letting their Pi-hole serving as the DHCP server.
+and not letting their Pi-hole serving as the DHCP server. Also, from this
+point on, the main pihole will be referred to as "the primary pihole" while
+the fallback/backup pihole will be referred to as "the other pihole".
 
 ### Part 1: For people running Pi-Hole as their DHCP server
 
@@ -56,6 +58,19 @@ touch 05-failoverdns.conf # This file name can be changed according to your syst
 echo "DHCP-option=option:dns-server,<[YOUR.MAIN.PIHOLE.IP],[YOUR.OTHER.PIHOLE.IP]" > 05-failoverdns.conf
 # Remember to replace the [] with the correct IP addresses, without the [ ]
 ```
+
+### Part 2: Setting up access for the pi-holes
+
+#### Part 2a: Set up root access
+
+1. Login to the primary pihole.
+2. Edit the sshd_config file using your favorite text editor (Mine is vim). `sudo vim /etc/sshd_config`
+3. Find the `#PermitRootLogin prohibit-password` and change it to `PermitRootLogin without-password`. This is done so that it would allow root access for ssh with public key authentication. Read more about [ssh login permissions here](https://askubuntu.com/questions/449364/what-does-without-password-mean-in-sshd-config-file)
+4. Save and quit.
+5. Restart the ssh services. `sudo /etc/init.d/ssh restart`
+6. Login to the other pihole and repeat step 2-5.
+
+#### Creating ssh keys
 
 ## Credits
 
