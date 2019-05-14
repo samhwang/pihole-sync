@@ -67,29 +67,7 @@ echo "DHCP-option=option:dns-server,<[YOUR.MAIN.PIHOLE.IP],[YOUR.OTHER.PIHOLE.IP
 
 ### Part 2: Setting up access for the pi-holes
 
-#### Part 2a: Set up root access
-
-1. Login to the primary pihole.
-2. Edit the sshd_config file using your favorite text editor (Mine is vim).
-3. Find the `#PermitRootLogin prohibit-password` and change it to `PermitRootLogin without-password`. This is done so that it would allow root access for ssh with public key authentication. Read more about [ssh login permissions here](https://askubuntu.com/questions/449364/what-does-without-password-mean-in-sshd-config-file)
-4. Save and quit.
-5. Restart the ssh services.
-6. Login to the other pihole and repeat step 2-5.
-
-```bash
-# From your machine
-ssh pi@[YOUR.MAIN.PIHOLE.IP]
-
-# You should be in the primary pihole now
-sudo vim /etc/sshd_config
-# Find the PermitRootLogin line, edit it, save and quit
-sudo /etc/init.d/ssh restart
-exit
-
-# Do the same with the other pihole
-```
-
-#### Part 2b: Creating ssh public authentication keys
+#### Part 2a: Creating ssh public authentication keys
 
 1. Login to the primary pihole.
 2. Create your SSH key by running `ssh-keygen`. Hit enter 3 times to accept the default values. Assuming your keys will now be set up as `id_rsa` and `id_rsa.pub`
@@ -117,11 +95,68 @@ cat primary.pub > authorized_keys # Copy the content of primary.pub into authori
 exit
 ```
 
+#### Part 2b: Set up root access
+
+1. Login to the primary pihole.
+2. Edit the sshd_config file using your favorite text editor (Mine is vim).
+3. Find the `#PermitRootLogin prohibit-password` and change it to `PermitRootLogin without-password`. This is done so that it would allow root access for ssh with public key authentication. Read more about [ssh login permissions here](https://askubuntu.com/questions/449364/what-does-without-password-mean-in-sshd-config-file)
+4. Save and quit.
+5. Restart the ssh services.
+6. Login to the other pihole and repeat step 2-5.
+
+```bash
+# From your machine
+ssh pi@[YOUR.MAIN.PIHOLE.IP]
+
+# You should be in the primary pihole now
+sudo vim /etc/sshd_config
+# Find the PermitRootLogin line, edit it, save and quit
+sudo /etc/init.d/ssh restart
+exit
+
+# Do the same with the other pihole
+```
+
+#### Part 3: Running the script
+
+1. Login to your primary pi hole.
+2. Download the sciprt, or clone the repo in your home directory.
+3. Edit the vars in the script to match your settings.
+4. Symlink the script to the home directory.
+5. Make the script executable
+6. Put the script in a cron tab. I personally used the version 2.0+ onwards of running the script every 5 minutes. Do this by putting this line at the end of the script: `*/5 * * * * /bin/bash /home/pi/piholesync.rsync.sh` For setting other intervals, read more [here](https://crontab.guru/every-5-minutes)
+
+```bash
+# From your machine
+ssh pi@[YOUR.MAIN.PIHOLE.IP]
+
+# You should be in the primary pi hole now.
+cd ~
+git clone https://github.com/samhwang/pihole-sync.git
+cd pihole-sync/
+vim piholesync.rsync.sh
+# Edit the vars
+chmod +x piholesync.rsync.sh
+cd ~
+ln -s ~/pihole-sync/piholesync.rsync.sh . # Symlinking the script to the main directory. The dot at the end is important
+
+sudo crontab -e
+# Scroll to the end of the script
+# Put `*/5 * * * * /bin/bash /home/pi/piholesync.rsync.sh` at the end of the script
+```
+
+## Versions
+
+- [1.0 - the first version](https://www.reddit.com/r/pihole/comments/9gw6hx/sync_two_piholes_bash_script/) by /u/jvinch76.
+- [2.0 - 2.1 - the second version](https://www.reddit.com/r/pihole/comments/9hi5ls/dual_pihole_sync_20/) by /u/LandlordTiberius. Improvements: check for existence of files before rsync and skip if not present, allow for remote command to be run without password by adding ssh keys to remote host no longer require hard coding password in this script, HAPASS removed.
+- [2.1.1](https://github.com/icemansid/pihole-sync/blob/master/SyncForDummies) by /u/ShawnEngland a.k.a [@icemansid](https://github.com/icemansid). Improvements: add guide to set up root users.
+- [2.1.2](https://github.com/samhwang/pihole-sync) by /u/samhwang [@samhwang](https://github.com/samhwang). Improvements: removing the vars from the script, also enabling rsync access without actually setting up the password for root user, and permitting root only over public key authentication.
+
 ## Credits
 
 I did not come up with this script on my own. Rather, it's a contribution
 from many reddit users, and a lot I would love to give my thanks to
 
-- /u/jvinch76 for creating [the first version](https://www.reddit.com/r/pihole/comments/9gw6hx/sync_two_piholes_bash_script/).
-- /u/LandlordTiberius for creating [version 2.0 and 2.1](https://www.reddit.com/r/pihole/comments/9hi5ls/dual_pihole_sync_20/).
-- /u/ShawnEngland a.k.a [@icemansid](https://github.com/icemansid) for creating [version 2.1.1](https://github.com/icemansid/pihole-sync/blob/master/SyncForDummies), with guide to setup the root user.
+- /u/jvinch76 for creating the first version.
+- /u/LandlordTiberius for creating version 2.0 and 2.1.
+- /u/ShawnEngland a.k.a [@icemansid](https://github.com/icemansid) for creating version 2.1.1.
