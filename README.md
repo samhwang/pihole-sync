@@ -61,7 +61,7 @@ like so:
 sudo su
 cd /etc/dnsmasq.d
 touch 05-failoverdns.conf # This file name can be changed according to your system
-echo "DHCP-option=option:dns-server,<[YOUR.MAIN.PIHOLE.IP],[YOUR.OTHER.PIHOLE.IP]" > 05-failoverdns.conf
+echo "dhcp-option=option:dns-server,[YOUR.MAIN.PIHOLE.IP],[YOUR.OTHER.PIHOLE.IP]" > 05-failoverdns.conf
 # Remember to replace the [] with the correct IP addresses, without the [ ]
 ```
 
